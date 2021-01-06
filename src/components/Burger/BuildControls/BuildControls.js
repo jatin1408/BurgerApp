@@ -15,10 +15,11 @@ const BuildControls=(props)=>(
             label={ctrl.label}
             added={()=>props.ingredientsAdded(ctrl.type)}
             removed={()=>props.ingredientsRemoved(ctrl.type)}
-            disabled={props.disabledInfo}
+            disabled={props.disabledButtons[ctrl.type]}
             
             />
         ))}
+        <button className={classes.OrderButton} disabled={!props.purchasable} onClick={props.ordered}>ORDER NOW</button>
     </div>
 );
 export default BuildControls;
