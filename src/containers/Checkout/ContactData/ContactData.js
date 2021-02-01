@@ -4,6 +4,7 @@ import Button from '../../../components/UI/Button/Button'
 import axios from '../../../axios-orders'
 import Spinner from '../../../components/UI/Spinner/Spinner'
 import Input  from '../../../components/UI/Input/Input'
+import {connect} from 'react-redux'
 class ContactData extends Component{
     state={
         orderForm:{
@@ -11,7 +12,7 @@ class ContactData extends Component{
             street:this.createInputConfig('input','text','Street','',false,true,5,25,false),
             zipCode:this.createInputConfig('input','text',"ZIP CODE",'',false,true,4,7,false),
             country:this.createInputConfig('input','text',"Country",'',false,true,5,10,false),
-            email:this.createInputConfig('input','email','Your Mail','',false,true,5,25,false),
+            email:this.createInputConfig('input','email','Your Mail','',false,true,5,40,false),
             deliveryMethod:{
                 elementType:'select',
                 elementConfig:{
@@ -32,7 +33,7 @@ class ContactData extends Component{
     }
     postData=(event)=>{
         event.preventDefault();
-        console.log(this.props.totalPrice)
+        console.log(this.props.price)
         this.setState({loading:true})
         const formData={};
         for(let key in this.state.orderForm){
@@ -40,8 +41,8 @@ class ContactData extends Component{
         }
         console.log(formData);
         const order={
-            ingredients:this.props.ingredients,
-            price:this.props.totalPrice,
+            ingredients:this.props.ings,
+            price:this.props.price,
             orderData:formData
         }
         axios.post('orders.json',order).then(res=>{
@@ -122,4 +123,10 @@ class ContactData extends Component{
         )
     }
 }
-export default ContactData;
+const mapStateToProps=(state)=>{
+    return {
+        ings:state.ingredients,
+        price:state.total
+}
+}
+export default connect(mapStateToProps)(ContactData);
