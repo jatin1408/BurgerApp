@@ -8,15 +8,17 @@ import axios from '../../axios-orders'
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler'
 import Spinner from '../../components/UI/Spinner/Spinner'
 import {connect} from 'react-redux';
-import * as actionTypes from '../../store/actions'
+import * as burgerBuilderActions from '../../store/actions/index'
 
 class BurgerBuilder extends  Component{
     state={
         purchasing:false,
-        loading:false,
-        error:false
+        loading:false
     }
- 
+    componentDidMount(){
+        console.log("I did");
+        this.props.getIngredients();
+    }
     purchaseStateChange=()=>{
         const ing=this.props.ings;
         const sum=Object.keys(ing).map(el=>{
@@ -28,12 +30,15 @@ class BurgerBuilder extends  Component{
     }
     
     purchaseStateChangeHandler=()=>{
+
         this.setState({purchasing:true})
     }
     purchaseRemoveStateChangeHandler=()=>{
         this.setState({purchasing:false})
     }
     purchaseContinueState=()=>{
+        this.props.onInitPurchase();
+
         this.props.history.push('/checkout');
     }
     render(){
@@ -43,7 +48,7 @@ class BurgerBuilder extends  Component{
         }
         
         
-        let burger=this.state.error?<p>Something went wrong</p>:<Spinner/>
+        let burger=this.props.error?<p>Something went wrong</p>:<Spinner/>
         let OS=null;
         if(this.props.ings){
             burger=( 
@@ -60,9 +65,7 @@ class BurgerBuilder extends  Component{
              OS= <OrderSummary total={this.props.total.toFixed(2)} 
             data={this.props.ings} cancel={this.purchaseRemoveStateChangeHandler} continue={this.purchaseContinueState}/>
         }
-        if(this.state.loading){
-            OS=<Spinner/>
-        }
+     
         return (
             <Aux>
                 <Modal show={this.state.purchasing} clicked={this.purchaseRemoveStateChangeHandler}>
@@ -78,14 +81,17 @@ class BurgerBuilder extends  Component{
 }
 const mapStateToProps=state=>{
     return {
-        ings:state.ingredients,
-        total:state.total
+        ings:state.burgerBuilder.ingredients,
+        total:state.burgerBuilder.total,
+        error:state.burgerBuilder.error
     }
 }
 const mapDispatchToProps=dispatch=>{
     return {
-        onIngredientsAdded:(ingName)=> dispatch({type:actionTypes.ADD_INGREDIENTS,ingredient:ingName}),
-        onIngredientsRemoved:(ingName)=> dispatch({type:actionTypes.REMOVE_INGREDIENTS,ingredient:ingName})
+        onIngredientsAdded:(ingName)=> dispatch(burgerBuilderActions.addIngredient(ingName)),
+        onIngredientsRemoved:(ingName)=> dispatch(burgerBuilderActions.removeIngredient(ingName)),
+        getIngredients:()=>dispatch(burgerBuilderActions.initIngredient()),
+        onInitPurchase:()=>dispatch(burgerBuilderActions.purchaseInit())
     }
 }
 export default connect (mapStateToProps,mapDispatchToProps)(withErrorHandler(BurgerBuilder,axios));
